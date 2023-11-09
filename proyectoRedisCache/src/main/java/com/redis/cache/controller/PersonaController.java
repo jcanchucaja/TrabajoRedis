@@ -29,8 +29,6 @@ public class PersonaController {
 	
 	@Autowired
 	private StringRedisTemplate redisTemplate1; 
-	//@Autowired
-	//private RedisTemplate redisTemplate;
 	
 	private final String BASE_URL = "https://rickandmortyapi.com/api/character/";
 	
