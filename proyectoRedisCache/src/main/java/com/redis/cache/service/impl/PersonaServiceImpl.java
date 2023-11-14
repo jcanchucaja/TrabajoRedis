@@ -42,6 +42,7 @@ public class PersonaServiceImpl implements PersonaService{
 	      persona.setGender(jsonObject.get("gender").toString());
 	      persona.setImage(jsonObject.get("image").toString());
 	      this.hashOperations.put(KEY, id, persona);
+	      this.hashOperations.put(KEY.concat(id), id, persona);
 	    } catch (JSONException err) {
 	      System.out.println("Exception : " + err.toString());
 	    }
@@ -50,6 +51,11 @@ public class PersonaServiceImpl implements PersonaService{
 	@Override
 	public Map<String, Persona> obtieneDescargados() {
 		return this.hashOperations.entries(KEY);
+	}
+	
+	@Override
+	public Map<String, Persona> obtienePersona(String id) {
+		return this.hashOperations.entries(KEY.concat(id));
 	}
 
 }
