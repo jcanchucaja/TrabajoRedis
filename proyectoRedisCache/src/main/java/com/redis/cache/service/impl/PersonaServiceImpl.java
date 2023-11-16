@@ -12,8 +12,6 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import com.redis.cache.service.PersonaService;
 
-import redis.clients.jedis.Jedis;
-
 import com.redis.cache.model.Persona;
 
 @Service
@@ -101,7 +99,7 @@ public class PersonaServiceImpl implements PersonaService{
 	       System.out.println("OBJECT : " + jsonObject.toString());
 	      Persona persona = new Persona();
 	      String id = jsonObject.get("id").toString();
-	      persona.setId(jsonObject.get("id").toString());
+	      persona.setId(id);
 	      persona.setName(jsonObject.get("name").toString());
 	      persona.setStatus(jsonObject.get("status").toString());
 	      persona.setGender(jsonObject.get("gender").toString());
