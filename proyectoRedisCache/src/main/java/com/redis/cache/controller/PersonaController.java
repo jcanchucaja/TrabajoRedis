@@ -3,6 +3,7 @@ package com.redis.cache.controller;
 import java.time.Duration;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -36,6 +37,8 @@ public class PersonaController {
 	
 	private final PersonaService personaService;
 	
+	JSONObject cargaDatoEnCacheRedis = null;
+	
 	public PersonaController (PersonaService personaService) {
 		this.personaService = personaService;
 	}
@@ -56,7 +59,10 @@ public class PersonaController {
 				String respuesta = response.getBody();
 				if (response.getStatusCodeValue() == 200) {
 					valueOp.set(claveRedis, respuesta, Duration.ofHours(1));
-					this.personaService.cargaDatosEnRedis(respuesta);
+					//this.personaService.cargaDatosEnRedis(respuesta);
+					cargaDatoEnCacheRedis = this.personaService.cargaDatosRedis(respuesta);
+					this.personaService.consultarData(cargaDatoEnCacheRedis);
+					this.personaService.insertarEnCache(cargaDatoEnCacheRedis);
 				}
 				return new ResponseEntity<String>(respuesta, headers, HttpStatus.OK);
 			}
