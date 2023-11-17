@@ -15,7 +15,7 @@ public interface PersonaService {
 	
 	public Map<String, Persona> obtienePersona(String id);
 
-	public JSONObject cargaDatosRedis(String datosPersona);
+	public JSONObject convertirAJSON(String datosPersona);
 	
 	public void consultarData(JSONObject jsonObject);
 	

@@ -35,7 +35,7 @@ public class PersonaController {
 	
 	private final PersonaService personaService;
 	
-	JSONObject cargaDatoEnCacheRedis = null;
+	JSONObject datosEnJSON = null;
 	
 	public PersonaController (PersonaService personaService) {
 		this.personaService = personaService;
@@ -57,10 +57,10 @@ public class PersonaController {
 				String respuesta = response.getBody();
 				if (response.getStatusCodeValue() == 200) {
 					valueOp.set(claveRedis, respuesta, Duration.ofHours(1));
-					//this.personaService.cargaDatosEnRedis(respuesta);
-					cargaDatoEnCacheRedis = this.personaService.cargaDatosRedis(respuesta);
-					this.personaService.consultarData(cargaDatoEnCacheRedis);
-					this.personaService.insertarEnCache(cargaDatoEnCacheRedis);
+					this.personaService.cargaDatosEnRedis(respuesta);
+					datosEnJSON = this.personaService.convertirAJSON(respuesta);
+					//this.personaService.consultarData(datosEnJSON);
+					//this.personaService.insertarEnCache(datosEnJSON);
 				}
 				return new ResponseEntity<String>(respuesta, headers, HttpStatus.OK);
 			}
