@@ -7,7 +7,6 @@ import java.util.Map;
 import java.time.Duration;
 
 import javax.annotation.PostConstruct;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
@@ -65,7 +64,7 @@ public class PersonaServiceImpl implements PersonaService{
 	      Persona persona = new Persona();
 	      String id = jsonObject.get("id").toString();
 	      String name = jsonObject.get("name").toString();
-	      String status = jsonObject.get("status").toString();
+	      String status = "asset";
 	      String gender = jsonObject.get("gender").toString();
 	      String image = jsonObject.get("image").toString();
 	      persona.setId(id);
@@ -100,7 +99,7 @@ public class PersonaServiceImpl implements PersonaService{
 	      Long orden = this.zSetOperations.size("SortSet".concat(KEY_TODOS)) + 1;
 	      this.zSetOperations.add("SortSet".concat(KEY_TODOS), id.concat("-").concat(name), orden);
 	      this.redisTemplateValores.expire("SortSet".concat(KEY_TODOS), tiempoDuracion); // Se le coloca el tiempo de expiracion de una hora
-	    } catch (JSONException err) {
+	    } catch (Exception err) {
 	      System.out.println("Exception : " + err.toString());
 	    }
 	}
@@ -119,21 +118,41 @@ public class PersonaServiceImpl implements PersonaService{
 		try {
  	      this.hashOperationPersona.delete(KEY_TODOS, persona.getId());
 
-	    } catch (JSONException err) {
+	    } catch (Exception err) {
 	      System.out.println("Exception : " + err.toString());
 	    }
 	}
 	
-	public void actualizarEnCache(Persona persona) {
+	@Override
+	public void actualizarEstado(String id, String estado) {
 		try {
+			Map<String, Persona> personaMap = this.hashOperationPersona.entries("HashPersona".concat(KEY_INDI).concat(id));
+			Persona persona = personaMap.get(id);
+		    persona.setStatus(estado);
+	        this.hashOperationPersona.put("HashPersona".concat(KEY_INDI).concat(id), id, persona);
+	        this.hashOperationPersona.put(KEY_TODOS, id, persona);
+	        this.listOperations.set("List".concat(KEY_INDI).concat(id), 2, estado);
+	        Map<String, String> perMap = new HashMap<String, String>();
+	        perMap.put("id", persona.getId());
+	        perMap.put("name", persona.getName());
+	        perMap.put("status", estado);
+	        perMap.put("gender", persona.getGender());
+	        perMap.put("image", persona.getImage());
+	        this.hashOperation.putAll("HashMap".concat(KEY_INDI).concat(id), perMap);
+	    } catch (Exception err) {
+	      System.out.println("Exception : " + err.toString());
+	    }
+	}
 	
-	      persona.setName("Nombre Actualizado");
-	      persona.setStatus("Status Actualizado");
-	      persona.setGender("Genero Actualizado");
-	      persona.setImage("Imagen Actualizado");
-	      this.hashOperationPersona.put(KEY_TODOS, persona.getId(), persona);
-
-	    } catch (JSONException err) {
+	@Override
+	public void eliminaPersona(String id) {
+		try {
+			this.hashOperationPersona.delete("HashPersona".concat(KEY_INDI).concat(id), id);
+			this.hashOperationPersona.delete(KEY_TODOS, id);
+			//this.valueOperations.
+			this.setOperations.remove("Set".concat(KEY_INDI).concat(id), id);
+			//this.zSetOperations.remove(id, null);
+		} catch (Exception err) {
 	      System.out.println("Exception : " + err.toString());
 	    }
 	}

@@ -14,8 +14,8 @@ public interface PersonaService {
 	
 	public Map<String, Persona> obtienePersona(String id);
 	
-	public void eliminarEnCache(Persona persona);
+	public void actualizarEstado(String id, String estado);
 	
-	public void actualizarEnCache(Persona persona);
+	public void eliminaPersona(String id);
 
 }

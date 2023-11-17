@@ -9,8 +9,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -59,6 +61,28 @@ public class PersonaController {
 	@GetMapping("/descargados")
 	public Map<String, Persona> obtieneDescargados() {
 		return this.personaService.obtieneDescargados();
+	}
+	
+	@PutMapping("/{id}/estado/{estado}")
+	public ResponseEntity<?> actualizarEstado(@PathVariable("id") String id, @PathVariable("estado") String estado) {
+		try {
+			this.personaService.actualizarEstado(id, estado);
+			return new ResponseEntity<String>("Estado actualizado", HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> eliminaPersona(@PathVariable("id") String id) {
+		try {
+			this.personaService.eliminaPersona(id);
+			return new ResponseEntity<String>("Persona eliminada", HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
 	}
 
 }
