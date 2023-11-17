@@ -60,7 +60,7 @@ public class PersonaServiceImpl implements PersonaService{
 	public void setPersona(String datosPersona) {
 		try {
 	      JSONObject jsonObject = new JSONObject(datosPersona);
-	      Duration tiempoDuracion = Duration.ofMinutes((long)2); // Se define el tiempo de duracion
+	      Duration tiempoDuracion = Duration.ofMinutes((long)4); // Se define el tiempo de duracion
 	      Persona persona = new Persona();
 	      String id = jsonObject.get("id").toString();
 	      String name = jsonObject.get("name").toString();
@@ -174,7 +174,7 @@ public class PersonaServiceImpl implements PersonaService{
 			this.listOperations.remove("List".concat(KEY_INDI).concat(id), 1, persona.getGender());
 			this.listOperations.remove("List".concat(KEY_INDI).concat(id), 1, persona.getImage());
 			// Elimina el sorted Set
-			this.zSetOperations.removeRange("SortSet".concat(KEY_TODOS), 0, 4);
+			this.zSetOperations.remove("SortSet".concat(KEY_TODOS), persona.getId().concat("-").concat(persona.getName()));
 		} catch (Exception err) {
 	      System.out.println("Exception : " + err.toString());
 	    }
