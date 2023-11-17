@@ -60,9 +60,5 @@ public class PersonaController {
 	public Map<String, Persona> obtieneDescargados() {
 		return this.personaService.obtieneDescargados();
 	}
-	
-	@GetMapping("/descargados/{id}")
-	public Map<String, Persona> obtienePersona(@PathVariable("id") Integer id) {
-		return this.personaService.obtienePersona(id.toString());
-	}
+
 }

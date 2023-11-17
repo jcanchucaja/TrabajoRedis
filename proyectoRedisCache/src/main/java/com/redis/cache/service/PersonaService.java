@@ -1,6 +1,5 @@
 package com.redis.cache.service;
 
-import java.util.List;
 import java.util.Map;
 
 import com.redis.cache.model.Persona;
@@ -18,9 +17,5 @@ public interface PersonaService {
 	public void eliminarEnCache(Persona persona);
 	
 	public void actualizarEnCache(Persona persona);
-	
-	public List<Persona> findAll();
-	
-	public Persona findById(Persona persona);
 
 }
