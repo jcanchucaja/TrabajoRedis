@@ -60,7 +60,7 @@ public class PersonaServiceImpl implements PersonaService{
 	public void setPersona(String datosPersona) {
 		try {
 	      JSONObject jsonObject = new JSONObject(datosPersona);
-	      Duration tiempoDuracion = Duration.ofMinutes((long)10); // Se define el tiempo de duracion
+	      Duration tiempoDuracion = Duration.ofMinutes((long)2); // Se define el tiempo de duracion
 	      Persona persona = new Persona();
 	      String id = jsonObject.get("id").toString();
 	      String name = jsonObject.get("name").toString();
@@ -147,11 +147,34 @@ public class PersonaServiceImpl implements PersonaService{
 	@Override
 	public void eliminaPersona(String id) {
 		try {
+			Map<String, Persona> personaMap = this.hashOperationPersona.entries("HashPersona".concat(KEY_INDI).concat(id));
+			Persona persona = personaMap.get(id);
+			// Elimina el Hash de tipo persona
 			this.hashOperationPersona.delete("HashPersona".concat(KEY_INDI).concat(id), id);
+			// Elimina el registro del Hash de tipo persona donde están todos los consultados
 			this.hashOperationPersona.delete(KEY_TODOS, id);
-			//this.valueOperations.
-			this.setOperations.remove("Set".concat(KEY_INDI).concat(id), id);
-			//this.zSetOperations.remove(id, null);
+			// Elimina el Hash de tipo map
+			this.hashOperation.delete("HashMap".concat(KEY_INDI).concat(id), "id");
+			this.hashOperation.delete("HashMap".concat(KEY_INDI).concat(id), "name");
+			this.hashOperation.delete("HashMap".concat(KEY_INDI).concat(id), "status");
+			this.hashOperation.delete("HashMap".concat(KEY_INDI).concat(id), "gender");
+			this.hashOperation.delete("HashMap".concat(KEY_INDI).concat(id), "image");
+			// Elimina el String
+			this.valueOperations.set("String".concat(KEY_INDI).concat(id), "", Duration.ofMillis(1));
+			// Elimina el Set
+			this.setOperations.remove("Set".concat(KEY_INDI).concat(id), persona.getId());
+			this.setOperations.remove("Set".concat(KEY_INDI).concat(id), persona.getName());
+			this.setOperations.remove("Set".concat(KEY_INDI).concat(id), persona.getStatus());
+			this.setOperations.remove("Set".concat(KEY_INDI).concat(id), persona.getGender());
+			this.setOperations.remove("Set".concat(KEY_INDI).concat(id), persona.getImage());
+			// Elimina la lista
+			this.listOperations.remove("List".concat(KEY_INDI).concat(id), 1, persona.getId());
+			this.listOperations.remove("List".concat(KEY_INDI).concat(id), 1, persona.getName());
+			this.listOperations.remove("List".concat(KEY_INDI).concat(id), 1, persona.getStatus());
+			this.listOperations.remove("List".concat(KEY_INDI).concat(id), 1, persona.getGender());
+			this.listOperations.remove("List".concat(KEY_INDI).concat(id), 1, persona.getImage());
+			// Elimina el sorted Set
+			this.zSetOperations.removeRange("SortSet".concat(KEY_TODOS), 0, 4);
 		} catch (Exception err) {
 	      System.out.println("Exception : " + err.toString());
 	    }
