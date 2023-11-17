@@ -66,11 +66,13 @@ public class PersonaServiceImpl implements PersonaService{
 	      personaMap.put("image", image);
 	      // Graba objeto Persona
 	      this.hashOperations.put(KEY, id, persona);
+	      this.redisTemplate.expire(KEY, Duration.ofHours(1)); // Se le coloca el tiempo de expiracion de una hora
 	      // Graba Hash de datos de la persona
 	      this.hashOperation.putAll(KEY_INDI.concat(id), personaMap);
+	      this.redisTemplateValores.expire(KEY_INDI.concat(id), Duration.ofHours(1)); // Se le coloca el tiempo de expiracion de una hora
 	      // Graba lista con datos de la persona
 	      this.listOperations.rightPushAll("List".concat(KEY_INDI).concat(id), id, name, status, gender, image);
-	      this.redisTemplateValores.expire("List".concat(KEY_INDI).concat(id), Duration.ofHours(1));
+	      this.redisTemplateValores.expire("List".concat(KEY_INDI).concat(id), Duration.ofHours(1)); // Se le coloca el tiempo de expiracion de una hora
 	    } catch (JSONException err) {
 	      System.out.println("Exception : " + err.toString());
 	    }
