@@ -1,12 +1,9 @@
 package com.redis.cache.controller;
 
-import java.time.Duration;
 import java.util.Map;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -28,9 +25,6 @@ public class PersonaController {
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	@Autowired
-	private StringRedisTemplate redisTemplate1; 
-	
 	private final String BASE_URL = "https://rickandmortyapi.com/api/character/";
 	
 	private final PersonaService personaService;
@@ -44,33 +38,22 @@ public class PersonaController {
 	@GetMapping("/{id}")
 	public ResponseEntity<?> get(@PathVariable("id") Integer id) {
 		try {
-			ValueOperations<String, String> valueOp = redisTemplate1.opsForValue();
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			String idString = id.toString();
-			String claveRedis = getKey(idString);
-			String dataRedis = valueOp.get(claveRedis);
-			if (dataRedis != null && !dataRedis.isEmpty()) {
-				return new ResponseEntity<String>(dataRedis, headers, HttpStatus.OK);
-			} else {
+			String dataRedis = this.personaService.getPersona(idString); // Consulta si la persona ya figura en REDIS
+			if (dataRedis == null || dataRedis.isEmpty()) {
 				ResponseEntity<String> response = restTemplate.exchange(BASE_URL.concat(idString), HttpMethod.GET, null, String.class);
 				String respuesta = response.getBody();
 				if (response.getStatusCodeValue() == 200) {
-					valueOp.set(claveRedis, respuesta, Duration.ofHours(1));
-					this.personaService.cargaDatosEnRedis(respuesta);
-					datosEnJSON = this.personaService.convertirAJSON(respuesta);
-					//this.personaService.consultarData(datosEnJSON);
-					//this.personaService.insertarEnCache(datosEnJSON);
+					this.personaService.setPersona(respuesta); // Registra en REDIS los datos de la persona consultada
 				}
-				return new ResponseEntity<String>(respuesta, headers, HttpStatus.OK);
 			}
+			Map<String, Persona> datosRespuesta = this.personaService.obtienePersona(idString);
+			return new ResponseEntity<Map<String, Persona>>(datosRespuesta, headers, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-	}
-	
-	private String getKey(String id) {
-		return "PERSONA-".concat(id);
 	}
 	
 	@GetMapping("/descargados")
@@ -78,7 +61,7 @@ public class PersonaController {
 		return this.personaService.obtieneDescargados();
 	}
 	
-	@GetMapping("/descargadosPersona/{id}")
+	@GetMapping("/descargados/{id}")
 	public Map<String, Persona> obtienePersona(@PathVariable("id") Integer id) {
 		return this.personaService.obtienePersona(id.toString());
 	}
