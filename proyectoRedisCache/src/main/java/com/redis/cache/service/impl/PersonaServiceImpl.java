@@ -60,7 +60,7 @@ public class PersonaServiceImpl implements PersonaService{
 	public void setPersona(String datosPersona) {
 		try {
 	      JSONObject jsonObject = new JSONObject(datosPersona);
-	      Duration tiempoDuracion = Duration.ofMinutes((long)4); // Se define el tiempo de duracion
+	      Duration tiempoDuracion = Duration.ofMinutes((long)60); // Se define el tiempo de duracion
 	      Persona persona = new Persona();
 	      String id = jsonObject.get("id").toString();
 	      String name = jsonObject.get("name").toString();
@@ -78,6 +78,17 @@ public class PersonaServiceImpl implements PersonaService{
 	      personaMap.put("status", status);
 	      personaMap.put("gender", gender);
 	      personaMap.put("image", image);
+	      // Secuencia de ordenacion
+	      String stringorden = this.valueOperations.get("SecPERSONA");
+	      Long longOrden = 0L;
+	      if (stringorden == null || stringorden.isEmpty()) {
+	    	  longOrden = 1L;
+	      } else {
+	    	  longOrden = Long.parseLong(stringorden);
+	    	  longOrden = longOrden + 1;
+	      }
+	      stringorden = longOrden.toString();
+    	  this.valueOperations.set("SecPERSONA", stringorden, tiempoDuracion);
 	      // Graba todos los datos de la persona como String del JSON de respuesta
 	      this.valueOperations.set("String".concat(KEY_INDI).concat(id), datosPersona, tiempoDuracion);
 	      // Graba objeto Persona en un hash que tiene todas las personas consultadas.
@@ -96,8 +107,7 @@ public class PersonaServiceImpl implements PersonaService{
 	      this.setOperations.add("Set".concat(KEY_INDI).concat(id), id, name, status, gender, image);
 	      this.redisTemplateValores.expire("Set".concat(KEY_INDI).concat(id), tiempoDuracion); // Se le coloca el tiempo de expiracion de una hora
 	      // Graba en SortSet la persona consultada en orden de consulta
-	      Long orden = this.zSetOperations.size("SortSet".concat(KEY_TODOS)) + 1;
-	      this.zSetOperations.add("SortSet".concat(KEY_TODOS), id.concat("-").concat(name), orden);
+	      this.zSetOperations.add("SortSet".concat(KEY_TODOS), id.concat("-").concat(name), longOrden);
 	      this.redisTemplateValores.expire("SortSet".concat(KEY_TODOS), tiempoDuracion); // Se le coloca el tiempo de expiracion de una hora
 	    } catch (Exception err) {
 	      System.out.println("Exception : " + err.toString());
